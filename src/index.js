@@ -1,7 +1,7 @@
-import SimpleLightBox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
 const axios = require('axios').default;
 import Notiflix from 'notiflix';
+import SimpleLightBox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const formEll = document.querySelector('.search-form');
 const galleryEll = document.querySelector('.gallery');
@@ -40,8 +40,3 @@ function getImg(photo, page) {
     `https://pixabay.com/api/?key=32455258-b6b5e3b19a045052743e3591c&q=${photo}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${per_page}`
   );
 }
-
-const lightbox = new SimpleLightbox('.gallery a', {
-  captionData: `alt`,
-  captionDelay: 250,
-});
