@@ -43,7 +43,7 @@ function renderPicture({
   </div>`;
 }
 
-function getImage(photo, page) {
+function getPhoto(photo, page) {
   return axios.get(
     `https://pixabay.com/api/?key=32042597-d449e2f3b6adbf69100237dc7&q=${photo}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${per_page}`
   );
@@ -51,13 +51,12 @@ function getImage(photo, page) {
 
 async function onFormSubmit(e) {
   e.preventDefault();
-  updateInterface();
 
   page = 1;
   photo = e.currentTarget.elements.searchQuery.value;
   gallery.innerHTML = '';
-  await getImage(photo, page).then(response => {
-    if (photo === ' ' || photo === '') {
+  await getPhoto(photo, page).then(response => {
+    if (photo === '') {
       Notiflix.Notify.failure('Please type search and try again.');
       return;
     }
@@ -74,7 +73,8 @@ async function onFormSubmit(e) {
         response.data.hits.map(picture => renderPicture(picture)).join('')
       );
       pagesLeft -= per_page;
-      updateInterface();
+      loadMoreButton.classList.remove('hidden');
+      loadMoreButton.classList.add('load-more');
     }
   });
   lightBox.refresh();
@@ -87,7 +87,7 @@ async function onLoadMore() {
       "We're sorry, but you've reached the end of search results."
     );
   } else {
-    await getImage(photo, page).then(response =>
+    await getPhoto(photo, page).then(response =>
       gallery.insertAdjacentHTML(
         'beforeend',
         response.data.hits.map(picture => renderPicture(picture)).join('')
@@ -96,11 +96,6 @@ async function onLoadMore() {
     pagesLeft -= per_page;
   }
   lightBox.refresh();
-}
-
-function updateInterface() {
-  loadMoreButton.classList.remove('hidden');
-  loadMoreButton.classList.add('load-more');
 }
 
 const lightBox = new SimpleLightBox('.gallery a', {
