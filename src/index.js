@@ -3,33 +3,28 @@ import Notiflix from 'notiflix';
 import SimpleLightBox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const formEll = document.querySelector('.search-form');
-const galleryEll = document.querySelector('.gallery');
-const loadMoreButtonEll = document.querySelector('#load-more');
+const form = document.querySelector('#search-form');
+const gallery = document.querySelector('.gallery');
+const loadMoreButton = document.querySelector('#load-more');
 
 let page = 1;
 let photo = undefined;
 let pagesLeft = 0;
 const per_page = 40;
 
-const galleryMarkup = markupPictures(picture);
+form.addEventListener('submit', onFormSubmit);
+loadMoreButton.addEventListener('click', onLoadMore);
 
-formEll.addEventListener('submit', onFormSubmit);
-loadMoreButtonEll.addEventListener('click', onLoadMore);
-
-function markupPictures(picture) {
-  return picture
-    .map(
-      ({
-        largeImageURL,
-        webformatURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) => {
-        return `<div class="photo-card">
+function renderPicture({
+  largeImageURL,
+  webformatURL,
+  tags,
+  likes,
+  views,
+  comments,
+  downloads,
+}) {
+  return `<div class="photo-card">
           <a href=${largeImageURL}><img src=${webformatURL} alt=${tags} loading="lazy" width=270px height=180px/>
     <div class="info">
       <p class="info-item">
@@ -46,28 +41,22 @@ function markupPictures(picture) {
       </p>
     </div></a>
   </div>`;
-      }
-    )
-    .join(``);
 }
 
-galleryEll.insertAdjacentHTML('beforeend', markupPictures(picture));
-
-function getImages(photo, page) {
+function getImage(photo, page) {
   return axios.get(
-    `https://pixabay.com/api/?key=32455258-b6b5e3b19a045052743e3591c&q=${photo}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${per_page}`
+    `https://pixabay.com/api/?key=32042597-d449e2f3b6adbf69100237dc7&q=${photo}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${per_page}`
   );
 }
 
 async function onFormSubmit(e) {
   e.preventDefault();
-  loadMoreButtonEll.classList.add('hidden');
-  loadMoreButtonEll.classList.remove('load-more');
+  updateInterface();
 
   page = 1;
   photo = e.currentTarget.elements.searchQuery.value;
-  galleryEll.innerHTML = '';
-  await getImages(photo, page).then(response => {
+  gallery.innerHTML = '';
+  await getImage(photo, page).then(response => {
     if (photo === ' ' || photo === '') {
       Notiflix.Notify.failure('Please type search and try again.');
       return;
@@ -80,13 +69,12 @@ async function onFormSubmit(e) {
       return;
     } else {
       Notiflix.Notify.success(`Hooray! We found ${pagesLeft} images.`);
-      galleryEll.insertAdjacentHTML(
+      gallery.insertAdjacentHTML(
         'beforeend',
-        response.data.hits.galleryMarkup
+        response.data.hits.map(picture => renderPicture(picture)).join('')
       );
       pagesLeft -= per_page;
-      loadMoreButtonEll.classList.remove('hidden');
-      loadMoreButtonEll.classList.add('load-more');
+      updateInterface();
     }
   });
   lightBox.refresh();
@@ -99,10 +87,10 @@ async function onLoadMore() {
       "We're sorry, but you've reached the end of search results."
     );
   } else {
-    await getImages(photo, page).then(response =>
-      galleryEll.insertAdjacentHTML(
+    await getImage(photo, page).then(response =>
+      gallery.insertAdjacentHTML(
         'beforeend',
-        response.data.hits.galleryMarkup
+        response.data.hits.map(picture => renderPicture(picture)).join('')
       )
     );
     pagesLeft -= per_page;
@@ -110,7 +98,21 @@ async function onLoadMore() {
   lightBox.refresh();
 }
 
+function updateInterface() {
+  loadMoreButton.classList.remove('hidden');
+  loadMoreButton.classList.add('load-more');
+}
+
 const lightBox = new SimpleLightBox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
+
+// const { height: cardHeight } = document
+//   .querySelector('.gallery')
+//   .firstElementChild.getBoundingClientRect();
+
+// window.scrollBy({
+//   top: cardHeight * 2,
+//   behavior: 'smooth',
+// });
