@@ -45,7 +45,7 @@ function renderPicture({
 
 function getPhoto(photo, page) {
   return axios.get(
-    `https://pixabay.com/api/?key=32042597-d449e2f3b6adbf69100237dc7&q=${photo}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${per_page}`
+    `https://pixabay.com/api/?key=32455258-b6b5e3b19a045052743e3591c&q=${photo}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${per_page}`
   );
 }
 
